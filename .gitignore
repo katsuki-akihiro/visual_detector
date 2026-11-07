@@ -1,0 +1,32 @@
+# Python and local virtual environments
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Downloaded model, weights, and runtime caches
+models/
+.hf_cache/
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+model.lock.json
+
+# Local machine records and test image
+environment.json
+environment.lock.txt
+docs/build_environment.json
+docs/LOCAL_VERIFICATION_JA.md
+sample_cats.jpg
+
+# Logs, secrets, and OS files
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db

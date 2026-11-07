@@ -1,0 +1,5 @@
+-r requirements-ui.txt
+# Install torch + torchvision for your accelerator separately (see guide).
+# This version is the stable documentation version verified on 2026-11-07.
+transformers==5.22.2
+huggingface-hub

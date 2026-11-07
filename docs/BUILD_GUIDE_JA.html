@@ -1,0 +1,76 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Visual Detector????????????</title><style>body{font-family:system-ui,"Yu Gothic UI",sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#17243b;line-height:1.7}h1,h2,h3{line-height:1.3}h1{border-bottom:2px solid #116b63;padding-bottom:.4rem}h2{margin-top:2rem;border-bottom:1px solid #d6e0e8;padding-bottom:.3rem}pre{background:#101a2c;color:#eaf4ff;padding:1rem;overflow-x:auto;border-radius:6px}code{font-family:Consolas,monospace}table{border-collapse:collapse;width:100%}th,td{border:1px solid #cbd5e1;padding:.6rem;vertical-align:top}th{background:#edf5f3}a{color:#116b63}@media(max-width:640px){body{margin:1rem auto}table{display:block;overflow-x:auto}}</style></head><body><h1>Visual Detector｜ローカル構築・操作手順</h1>
+<p>指定した主画面の領域を取得し、Liquid AI d1-2BのSystem One APIで領域検出・全体判定・全体推論を行います。画像と推論はこのPC内で処理します。</p>
+<h2>1. 準備</h2>
+<p>Python、Tkinter、画面取得が使えるデスクトップ環境を用意します。GPUを使う場合は、PyTorchからCUDAまたはApple Silicon MPSが利用できる必要があります。CPU実行も選べます。</p>
+<p>公開リポジトリにはモデル重みと仮想環境を含めません。次の手順で環境とモデルを用意してください。</p>
+<h3>Windows / PowerShell</h3>
+<pre><code class="language-powershell">cd liquid_desktop_mvp
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+# GPUを使う場合、PyTorch公式の環境に合ったCUDA版インストールコマンドを先に実行
+.\.venv\Scripts\python.exe -m pip install torch torchvision
+.\.venv\Scripts\python.exe -m pip install -r requirements-model.txt
+.\.venv\Scripts\python.exe tools\diagnose.py
+</code></pre>
+<h3>macOS / Linux</h3>
+<pre><code class="language-bash">cd liquid_desktop_mvp
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+# GPUを使う場合、PyTorch公式の環境に合ったインストールコマンドを先に実行
+.venv/bin/python -m pip install torch torchvision
+.venv/bin/python -m pip install -r requirements-model.txt
+.venv/bin/python tools/diagnose.py
+</code></pre>
+<p>GPUを選ぶ場合、診断結果の<code>accelerators.cuda</code>または<code>accelerators.mps</code>が<code>true</code>であることを確認します。PyTorchの導入方法は<a href="https://pytorch.org/get-started/locally/">公式手順</a>を参照してください。</p>
+<h2>2. モデルの配置</h2>
+<p>このフォルダーに<code>models/d1-2B/model.safetensors</code>と<code>model.lock.json</code>がある場合、取得済みです。別のPCでは公式モデルのコードを確認したうえで次を実行します。</p>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe tools\download_model.py --accept-model-code
+</code></pre>
+<p>macOS/Linuxは<code>.venv/bin/python tools/download_model.py --accept-model-code</code>です。モデルの取得には通信が必要です。推論時はローカルのモデルだけを読み込みます。</p>
+<h2>3. 起動とGPU／CPUの選択</h2>
+<p>Windowsでは<code>run_local.bat</code>、macOS/Linuxでは<code>bash run_local.sh</code>、または仮想環境のPythonで<code>python app.py</code>を実行します。</p>
+<p>小窓右上の「実行」で<strong>GPU</strong>または<strong>CPU</strong>を選びます。停止中に変更すると、次に「開始」を押したときに選んだデバイスでモデルを読み込みます。GPUが利用できない場合はCPUを選択してください。CPU実行はfloat32です。GPU実行は対応する精度を自動で選びます。CLIでは起動時の指定として<code>--device cuda</code>、<code>--device mps</code>、<code>--device cpu</code>も使えます。</p>
+<ol>
+<li>「領域選択」を押し、主画面で監視したい範囲をドラッグします。</li>
+<li>小窓を選択した範囲の外へ移動します。</li>
+<li>モードと指示を設定して「開始」を押します。</li>
+<li>モデルの読込後、選択領域の取得と推論が繰り返されます。「停止」で新たな取得を止めます。</li>
+</ol>
+<p>小窓が選択範囲に重なると画面取得を一時停止します。画面構成を変えた場合は領域を選び直してください。</p>
+<h2>4. 3つのモード</h2>
+<p>「全体」は選択した画面領域の画像全体を指します。</p>
+<table>
+<thead>
+<tr>
+<th>モード</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>領域検出</td>
+<td>対象指示に従ってBBoxを表示します。初期例は「映っている魚をすべて囲む」。信頼度下限は0.00〜1.00です。</td>
+</tr>
+<tr>
+<td>全体判定</td>
+<td>判定指示の初期例は「魚が映っているか？」。判定しきい値の初期値は0.20で、スコアが超えたフレームを陽性とします。陽性フレームの直近3枚を取得時刻付きで表示します。位置の指示の初期例は「映っている魚をすべて囲む」。陽性判定後だけ、別の推論でその位置を探します。位置が不要なら空欄にできます。</td>
+</tr>
+<tr>
+<td>全体推論</td>
+<td>「候補を編集」で分類候補を1行ずつ入力します。初期値は「魚がある」のみ。「該当しない」が自動で加わり、最高スコアの1件を表示します。</td>
+</tr>
+</tbody>
+</table>
+<p>指示・しきい値・候補・実行デバイスは停止中に変更します。更新間隔は0.5 / 1.0 / 2.0 / 5.0 / 10.0秒から選べます。これは次の取得を始める最短間隔であり、推論が遅い場合に画像をためません。CPUで1フレームに約5秒かかる場合、0.5秒を選んでも結果は0.5秒ごとになりません。取得頻度を抑えたい場合は10.0秒を選びます。「推論」は画像の縮小からモデル応答まで、「処理合計」は画面取得開始から表示までの時間です。</p>
+<h2>5. 動作確認</h2>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe -m unittest discover -s tests -p &quot;test_*.py&quot; -q
+.\.venv\Scripts\python.exe -m tests.real_modes_smoke path\to\cats.jpg
+.\.venv\Scripts\python.exe -m tests.gui_modes_smoke
+</code></pre>
+<p>静止画を個別に試す場合は<code>tools/check_model.py</code>を使います。GPU／CPUや環境の状態は<code>tools/diagnose.py</code>で確認できます。実モデルの確認には手元の画像を指定してください。画像ファイルはリポジトリに含まれません。</p>
+<h2>参考資料</h2>
+<ul>
+<li><a href="https://huggingface.co/LiquidAI/d1-2B">Liquid AI d1-2B モデルカード</a></li>
+<li><a href="https://pytorch.org/get-started/locally/">PyTorch インストール手順</a></li>
+<li><a href="https://pillow.readthedocs.io/en/stable/reference/ImageGrab.html">Pillow ImageGrab</a></li>
+</ul></body></html>

@@ -1,0 +1,2 @@
+# Tkinter comes with the Python/OS installation.
+Pillow>=11.3,<14
