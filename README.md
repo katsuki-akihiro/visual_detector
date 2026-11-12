@@ -63,6 +63,6 @@ GPUが利用できない環境ではCPUを選択します。CPUとApple Silicon 
 .\.venv\Scripts\python.exe -m tests.real_modes_smoke path\to\cats.jpg
 ```
 
-単体テストとGUI統合テストのほか、手元の猫画像を渡して実モデルの応答を確認できます。サンプル画像は同梱していません。Windows環境でCUDA・CPU推論とGPUからCPUへの切り替えを確認済みです。Intel Core Ultra 5 236V（メモリ16 GB）でXPU・NPU推論と、XPU／NPUとCPUの切り替えを確認しました（[検証結果](docs/INTEL_XPU_NPU_REPORT_JA.md)）。魚の検出精度と長時間運転は未測定です。
+単体テストとGUI統合テストのほか、手元の猫画像を渡して実モデルの応答を確認できます。サンプル画像は同梱していません。Windows環境でCUDA・CPU推論とGPUからCPUへの切り替えを確認済みです。XPU版・NPU版はDell Pro 14 Premium（Intel Core Ultra 5 236V、メモリ16 GB、Windows 11 Pro 25H2）で実装し、同じ端末でXPU・NPU推論と、XPU／NPUとCPUの切り替えを確認しました（[検証結果](docs/INTEL_XPU_NPU_REPORT_JA.md)）。魚の検出精度と長時間運転は未測定です。
 
 モデルの仕様：[Liquid AI d1-2B](https://huggingface.co/LiquidAI/d1-2B)。

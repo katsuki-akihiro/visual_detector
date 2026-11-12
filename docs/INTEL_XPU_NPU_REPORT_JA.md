@@ -1,6 +1,6 @@
 # Intel XPU・NPU 対応 検証結果
 
-Windows 11 の Intel Core Ultra 200V 搭載PC（メモリ16 GB）で、Visual Detector を PyTorch XPU（内蔵Arc GPU）と OpenVINO NPU で動かした結果です。構築手順は[構築・操作手順書](BUILD_GUIDE_JA.md)の6章・7章、計測の生データは[benchmarks/](benchmarks/)にあります。
+Windows 11 の Intel Core Ultra 200V 搭載PC（Dell Pro 14 Premium、Core Ultra 5 236V、メモリ16 GB）で実装し、Visual Detector を PyTorch XPU（内蔵Arc GPU）と OpenVINO NPU で動かした結果です。構築手順は[構築・操作手順書](BUILD_GUIDE_JA.md)の6章・7章、計測の生データは[benchmarks/](benchmarks/)にあります。
 
 ## 結論
 
@@ -16,15 +16,19 @@ Windows 11 の Intel Core Ultra 200V 搭載PC（メモリ16 GB）で、Visual De
 
 速さを優先する場合はXPU、メモリの余裕と消費電力を優先する場合はNPUが向きます。NPU版は入力を固定形状にするため、画像を640×480に変形し、指示・候補の長さに上限があります（後述）。
 
-## 検証環境
+## 実装・検証環境
+
+XPU版・NPU版の実装と、このページの計測はすべて次の1台で行いました。
 
 | 項目 | 内容 |
 |---|---|
-| CPU | Intel Core Ultra 5 236V |
+| 機種 | Dell Pro 14 Premium（PA14250） |
+| CPU | Intel Core Ultra 5 236V（2.10 GHz） |
 | GPU | Intel Arc 130V GPU（8 GB）、ドライバー 32.0.101.8860 |
 | NPU | Intel AI Boost、ドライバー 32.0.100.4724 |
-| メモリ | 16 GB（OSから見える量15.6 GB）、ページファイル約13 GB |
-| OS / Python | Windows 11 Pro（26200）/ Python 3.14.7 |
+| メモリ | 16 GB、8533 MT/s（OSから見える量15.6 GB）、ページファイル約13 GB |
+| ストレージ | 238 GB（作業開始時の空きは約8 GB。モデル取得のため約45 GBまで空けて実施） |
+| OS / Python | Windows 11 Pro 25H2（OSビルド 26200.9711）/ Python 3.14.7 |
 | PyTorch | CPU版 2.15.0（`.venv`）、XPU版 2.15.0+xpu（`.venv-xpu`） |
 | Transformers / OpenVINO | 5.22.2 / 2026.4.1 |
 | モデル | LiquidAI/d1-2B（revision 652f920e） |
