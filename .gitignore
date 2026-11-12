@@ -1,5 +1,6 @@
 # Python and local virtual environments
 .venv/
+.venv-*/
 venv/
 __pycache__/
 *.py[cod]
@@ -10,6 +11,9 @@ __pycache__/
 # Downloaded model, weights, and runtime caches
 models/
 .hf_cache/
+.ov_cache/
+*.bin
+*.blob
 *.safetensors
 *.pt
 *.pth

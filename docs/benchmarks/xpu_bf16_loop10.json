@@ -1,0 +1,306 @@
+{
+  "host": {
+    "cpu": "Intel(R) Core(TM) Ultra 5 236V",
+    "gpus": [
+      {
+        "Name": "Intel(R) Arc(TM) 130V GPU (8GB)",
+        "DriverVersion": "32.0.101.8860"
+      }
+    ],
+    "npu_driver": "32.0.100.4724",
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.7",
+    "ram_gb": 15.6
+  },
+  "packages": {
+    "torch": "2.15.0+xpu",
+    "torchvision": "0.29.2+xpu",
+    "transformers": "5.22.2"
+  },
+  "device_requested": "xpu",
+  "image_size": [
+    640,
+    480
+  ],
+  "max_edge": 768,
+  "status": "ok",
+  "backend": "d1-2B / xpu (Intel(R) Arc(TM) 130V GPU (8GB)) / bfloat16 / 652f920e",
+  "actual_device": "xpu",
+  "load": {
+    "ms": 12854,
+    "system_available_before_mb": 8277,
+    "working_set_mb": 4714,
+    "peak_working_set_mb": 5672,
+    "private_mb": 4935,
+    "peak_commit_mb": 8557,
+    "page_faults": 3103975,
+    "counters": {
+      "samples": 12,
+      "engine_util_percent": {
+        "Compute@1212C": {
+          "mean": 4.9,
+          "max": 24.2
+        }
+      },
+      "max_working_set_mb": 4859,
+      "max_private_mb": 5081,
+      "max_gpu_shared_mb": 4038,
+      "max_gpu_dedicated_mb": 0,
+      "min_system_available_mb": 3517,
+      "pages_input_per_s_max": 202510.8,
+      "pages_input_total_est": 825123,
+      "pages_output_total_est": 76012,
+      "pagefile_percent_max": 19.4
+    },
+    "xpu_allocated_mb": 3659
+  },
+  "modes": {
+    "region": {
+      "ms": [
+        5876,
+        408,
+        414,
+        397,
+        397,
+        407,
+        399,
+        400,
+        414,
+        413,
+        403,
+        408,
+        440,
+        510,
+        414,
+        448,
+        445,
+        429,
+        462,
+        453,
+        442,
+        469,
+        482,
+        495,
+        685,
+        979,
+        469,
+        455,
+        473,
+        441
+      ],
+      "results": [
+        {
+          "boxes": [
+            [
+              0.018,
+              0.113,
+              0.497,
+              0.987,
+              0.996
+            ],
+            [
+              0.538,
+              0.052,
+              0.999,
+              0.778,
+              0.996
+            ]
+          ]
+        }
+      ],
+      "first_ms": 5876,
+      "warm_median_ms": 435,
+      "counters": {
+        "samples": 50,
+        "engine_util_percent": {
+          "Compute@1212C": {
+            "mean": 82.7,
+            "max": 120.6
+          }
+        },
+        "max_working_set_mb": 8136,
+        "max_private_mb": 8259,
+        "max_gpu_shared_mb": 5123,
+        "max_gpu_dedicated_mb": 0,
+        "min_system_available_mb": 12,
+        "pages_input_per_s_max": 75821.1,
+        "pages_input_total_est": 854724,
+        "pages_output_total_est": 43155,
+        "pagefile_percent_max": 19.8
+      }
+    },
+    "binary": {
+      "ms": [
+        816,
+        681,
+        691,
+        691,
+        673,
+        688,
+        687,
+        690,
+        698,
+        691,
+        750,
+        688,
+        696,
+        696,
+        642,
+        753,
+        809,
+        791,
+        788,
+        1607,
+        870,
+        892,
+        790,
+        845,
+        922,
+        799,
+        722,
+        741,
+        785,
+        741
+      ],
+      "results": [
+        {
+          "score": 0.9925,
+          "positive": true,
+          "boxes": [
+            [
+              0.018,
+              0.113,
+              0.497,
+              0.987,
+              0.996
+            ],
+            [
+              0.538,
+              0.052,
+              0.999,
+              0.778,
+              0.996
+            ]
+          ]
+        }
+      ],
+      "first_ms": 816,
+      "warm_median_ms": 732,
+      "counters": {
+        "samples": 46,
+        "engine_util_percent": {
+          "Compute@1212C": {
+            "mean": 90.6,
+            "max": 120.6
+          }
+        },
+        "max_working_set_mb": 8136,
+        "max_private_mb": 8259,
+        "max_gpu_shared_mb": 5123,
+        "max_gpu_dedicated_mb": 0,
+        "min_system_available_mb": 12,
+        "pages_input_per_s_max": 71319.2,
+        "pages_input_total_est": 773057,
+        "pages_output_total_est": 34518,
+        "pagefile_percent_max": 19.8
+      }
+    },
+    "choice": {
+      "ms": [
+        369,
+        293,
+        288,
+        291,
+        309,
+        288,
+        285,
+        286,
+        314,
+        295,
+        293,
+        297,
+        279,
+        288,
+        300,
+        309,
+        312,
+        308,
+        769,
+        333,
+        333,
+        538,
+        375,
+        1074,
+        299,
+        324,
+        365,
+        367,
+        347,
+        377
+      ],
+      "results": [
+        {
+          "choice": "猫がいる",
+          "score": 0.9808,
+          "probabilities": {
+            "魚がある": 0.0008,
+            "猫がいる": 0.9808,
+            "該当しない": 0.0185
+          }
+        }
+      ],
+      "first_ms": 369,
+      "warm_median_ms": 310,
+      "counters": {
+        "samples": 44,
+        "engine_util_percent": {
+          "Compute@1212C": {
+            "mean": 90.7,
+            "max": 120.6
+          }
+        },
+        "max_working_set_mb": 8136,
+        "max_private_mb": 8259,
+        "max_gpu_shared_mb": 5123,
+        "max_gpu_dedicated_mb": 0,
+        "min_system_available_mb": 12,
+        "pages_input_per_s_max": 71319.2,
+        "pages_input_total_est": 764493,
+        "pages_output_total_est": 34518,
+        "pagefile_percent_max": 19.8
+      }
+    }
+  },
+  "inference": {
+    "total_s": 53.6,
+    "frames": 90,
+    "process_page_faults": 1580734,
+    "counters": {
+      "samples": 52,
+      "engine_util_percent": {
+        "Compute@1212C": {
+          "mean": 83.1,
+          "max": 120.6
+        }
+      },
+      "max_working_set_mb": 8136,
+      "max_private_mb": 8259,
+      "max_gpu_shared_mb": 5123,
+      "max_gpu_dedicated_mb": 0,
+      "min_system_available_mb": 12,
+      "pages_input_per_s_max": 75821.1,
+      "pages_input_total_est": 896548,
+      "pages_output_total_est": 43155,
+      "pagefile_percent_max": 19.8
+    },
+    "xpu_peak_allocated_mb": 3725,
+    "xpu_peak_reserved_mb": 4444
+  },
+  "process_peak": {
+    "working_set_mb": 3664,
+    "peak_working_set_mb": 8141,
+    "private_mb": 8246,
+    "peak_commit_mb": 8557,
+    "page_faults": 4684718
+  }
+}

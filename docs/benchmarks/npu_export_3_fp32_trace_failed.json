@@ -1,0 +1,119 @@
+{
+  "seq_len": 640,
+  "fixed_size": [
+    640,
+    480
+  ],
+  "weights": "fp16",
+  "steps": [
+    {
+      "step": "load_pytorch_float32",
+      "s": 13.9,
+      "peak_commit_mb": 15006
+    },
+    {
+      "step": "record_backbone_call",
+      "s": 12.0,
+      "peak_commit_mb": 15276
+    },
+    {
+      "step": "pytorch_reference",
+      "s": 27.8,
+      "peak_commit_mb": 15276
+    },
+    {
+      "step": "convert_model",
+      "s": 58.2,
+      "peak_commit_mb": 15276
+    },
+    {
+      "step": "save_ir",
+      "s": 18.9,
+      "peak_commit_mb": 15276
+    },
+    {
+      "step": "check_on_openvino_cpu",
+      "s": 54.1,
+      "peak_commit_mb": 17586
+    },
+    {
+      "step": "compile_npu",
+      "s": 3.5,
+      "peak_commit_mb": 17586,
+      "error": "RuntimeError: Exception from src\\inference\\src\\cpp\\core.cpp:135:\nException from src\\inference\\src\\dev\\plugin.cpp:54:\nException from src\\plugins\\intel_npu\\src\\plugin\\src\\plugin.cpp:560:\nException from src\\plugins\\intel_npu\\src\\compiler_adapter\\src\\compiler_impl.cpp:323:\nCompilation failed. vclAllocatedExecutableCreate4 result: 0x78000004 - [NPU_VCL] Compiler returned msg:\nCompilation failed\n\n\n\n",
+      "where": [
+        "export_npu.py:179 main",
+        "_ov_api.py:646 compile_model"
+      ]
+    }
+  ],
+  "openvino": "2026.4.1-22982-e213a147257-releases/2026/4",
+  "torch": "2.15.0+cpu",
+  "image_grid_thw": [
+    [
+      1,
+      30,
+      40
+    ]
+  ],
+  "recorded_tokens": 567,
+  "padding_max_abs_diff_bf16": 0.00012227892875671387,
+  "static_scatter_max_abs_diff": 0.0,
+  "ops": [
+    "Add",
+    "BitwiseAnd",
+    "BitwiseOr",
+    "Broadcast",
+    "Concat",
+    "Constant",
+    "Convert",
+    "Cos",
+    "CumSum",
+    "Divide",
+    "Equal",
+    "Floor",
+    "Gather",
+    "Gelu",
+    "Greater",
+    "GroupConvolution",
+    "Less",
+    "MVN",
+    "MatMul",
+    "Maximum",
+    "Mod",
+    "Multiply",
+    "Pad",
+    "Parameter",
+    "Power",
+    "Range",
+    "ReduceMean",
+    "Reshape",
+    "Result",
+    "ScaledDotProductAttention",
+    "Select",
+    "ShapeOf",
+    "Sigmoid",
+    "Sin",
+    "Slice",
+    "Split",
+    "Sqrt",
+    "Squeeze",
+    "StridedSlice",
+    "Subtract",
+    "Swish",
+    "Tile",
+    "Transpose",
+    "Unsqueeze",
+    "VariadicSplit"
+  ],
+  "bf16_compute_ops": 0,
+  "dynamic_shape_ops": [],
+  "ir_mb": 3662,
+  "cpu_vs_pytorch": {
+    "max_abs": 0.3133913278579712,
+    "mean_abs": 0.0031728034373372793,
+    "ref_mean_abs": 1.4933438301086426
+  },
+  "status": "failed",
+  "error": "RuntimeError: Exception from src\\inference\\src\\cpp\\core.cpp:135:\nException from src\\inference\\src\\dev\\plugin.cpp:54:\nException from src\\plugins\\intel_npu\\src\\plugin\\src\\plugin.cpp:560:\nException from src\\plugins\\intel_npu\\src\\compiler_adapter\\src\\compiler_impl.cpp:323:\nCompilation failed. vclAllocatedExecutableCreate4 result: 0x78000004 - [NPU_VCL] Compiler returned msg:\nCompilation failed\n\n\n\n"
+}

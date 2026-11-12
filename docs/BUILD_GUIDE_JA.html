@@ -1,35 +1,37 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Visual Detector????????????</title><style>body{font-family:system-ui,"Yu Gothic UI",sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#17243b;line-height:1.7}h1,h2,h3{line-height:1.3}h1{border-bottom:2px solid #116b63;padding-bottom:.4rem}h2{margin-top:2rem;border-bottom:1px solid #d6e0e8;padding-bottom:.3rem}pre{background:#101a2c;color:#eaf4ff;padding:1rem;overflow-x:auto;border-radius:6px}code{font-family:Consolas,monospace}table{border-collapse:collapse;width:100%}th,td{border:1px solid #cbd5e1;padding:.6rem;vertical-align:top}th{background:#edf5f3}a{color:#116b63}@media(max-width:640px){body{margin:1rem auto}table{display:block;overflow-x:auto}}</style></head><body><h1>Visual Detector｜ローカル構築・操作手順</h1>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Visual Detector｜ローカル構築・操作手順</title><style>body{font-family:system-ui,"Yu Gothic UI",sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#17243b;line-height:1.7}h1,h2,h3{line-height:1.3}h1{border-bottom:2px solid #116b63;padding-bottom:.4rem}h2{margin-top:2rem;border-bottom:1px solid #d6e0e8;padding-bottom:.3rem}pre{background:#101a2c;color:#eaf4ff;padding:1rem;overflow-x:auto;border-radius:6px}code{font-family:Consolas,monospace}table{border-collapse:collapse;width:100%}th,td{border:1px solid #cbd5e1;padding:.6rem;vertical-align:top}th{background:#edf5f3}a{color:#116b63}@media(max-width:640px){body{margin:1rem auto}table{display:block;overflow-x:auto}}</style></head><body><h1 id="visual-detectorローカル構築操作手順">Visual Detector｜ローカル構築・操作手順</h1>
 <p>指定した主画面の領域を取得し、Liquid AI d1-2BのSystem One APIで領域検出・全体判定・全体推論を行います。画像と推論はこのPC内で処理します。</p>
-<h2>1. 準備</h2>
-<p>Python、Tkinter、画面取得が使えるデスクトップ環境を用意します。GPUを使う場合は、PyTorchからCUDAまたはApple Silicon MPSが利用できる必要があります。CPU実行も選べます。</p>
+<h2 id="1-準備">1. 準備</h2>
+<p>Python、Tkinter、画面取得が使えるデスクトップ環境を用意します。GPUを使う場合は、PyTorchからCUDA、Intel XPU（Core Ultraの内蔵Arc GPUなど）、またはApple Silicon MPSが利用できる必要があります。Intel NPUはOpenVINO経由の別バックエンドです（<a href="#6-intel-gpuxpu版">6章</a>・<a href="#7-intel-npu版">7章</a>）。CPU実行も選べます。</p>
 <p>公開リポジトリにはモデル重みと仮想環境を含めません。次の手順で環境とモデルを用意してください。</p>
-<h3>Windows / PowerShell</h3>
-<pre><code class="language-powershell">cd liquid_desktop_mvp
-python -m venv .venv
+<p><strong>ディスクの空き容量</strong>：モデル3.8 GB、仮想環境1〜4 GB（XPU版は約4 GB）、NPU用の変換モデル約4 GBが必要です。取得途中で容量が尽きると<code>os error 112</code>で失敗するため、事前に15 GB以上空けてください。</p>
+<h3 id="windows--powershell">Windows / PowerShell</h3>
+<p>リポジトリを取得したフォルダー（<code>app.py</code>がある場所）で実行します。</p>
+<pre><code class="language-powershell">python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 # GPUを使う場合、PyTorch公式の環境に合ったCUDA版インストールコマンドを先に実行
 .\.venv\Scripts\python.exe -m pip install torch torchvision
 .\.venv\Scripts\python.exe -m pip install -r requirements-model.txt
 .\.venv\Scripts\python.exe tools\diagnose.py
 </code></pre>
-<h3>macOS / Linux</h3>
-<pre><code class="language-bash">cd liquid_desktop_mvp
-python3 -m venv .venv
+<h3 id="macos--linux">macOS / Linux</h3>
+<pre><code class="language-bash">python3 -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 # GPUを使う場合、PyTorch公式の環境に合ったインストールコマンドを先に実行
 .venv/bin/python -m pip install torch torchvision
 .venv/bin/python -m pip install -r requirements-model.txt
 .venv/bin/python tools/diagnose.py
 </code></pre>
-<p>GPUを選ぶ場合、診断結果の<code>accelerators.cuda</code>または<code>accelerators.mps</code>が<code>true</code>であることを確認します。PyTorchの導入方法は<a href="https://pytorch.org/get-started/locally/">公式手順</a>を参照してください。</p>
-<h2>2. モデルの配置</h2>
+<p>GPUを選ぶ場合、診断結果の<code>accelerators.cuda</code>・<code>accelerators.xpu</code>・<code>accelerators.mps</code>のいずれかが<code>true</code>で、<code>accelerators.selected_gpu</code>に使うデバイスが表示されることを確認します。PyTorchの導入方法は<a href="https://pytorch.org/get-started/locally/">公式手順</a>を参照してください。</p>
+<h2 id="2-モデルの配置">2. モデルの配置</h2>
 <p>このフォルダーに<code>models/d1-2B/model.safetensors</code>と<code>model.lock.json</code>がある場合、取得済みです。別のPCでは公式モデルのコードを確認したうえで次を実行します。</p>
 <pre><code class="language-powershell">.\.venv\Scripts\python.exe tools\download_model.py --accept-model-code
 </code></pre>
 <p>macOS/Linuxは<code>.venv/bin/python tools/download_model.py --accept-model-code</code>です。モデルの取得には通信が必要です。推論時はローカルのモデルだけを読み込みます。</p>
-<h2>3. 起動とGPU／CPUの選択</h2>
+<h2 id="3-起動とgpucpuの選択">3. 起動とGPU／CPUの選択</h2>
 <p>Windowsでは<code>run_local.bat</code>、macOS/Linuxでは<code>bash run_local.sh</code>、または仮想環境のPythonで<code>python app.py</code>を実行します。</p>
-<p>小窓右上の「実行」で<strong>GPU</strong>または<strong>CPU</strong>を選びます。停止中に変更すると、次に「開始」を押したときに選んだデバイスでモデルを読み込みます。GPUが利用できない場合はCPUを選択してください。CPU実行はfloat32です。GPU実行は対応する精度を自動で選びます。CLIでは起動時の指定として<code>--device cuda</code>、<code>--device mps</code>、<code>--device cpu</code>も使えます。</p>
+<p>小窓右上の「実行」で<strong>GPU</strong>・<strong>NPU</strong>・<strong>CPU</strong>を選びます。停止中に変更すると、次に「開始」を押したときに選んだデバイスでモデルを読み込みます。読込後は領域表示の下に「実行先：d1-2B / xpu (Intel(R) Arc(TM) 130V GPU (8GB)) / bfloat16 / …」のように、実際の実行先・精度が表示されます。GPU・NPUが利用できない場合は理由を表示して選択を戻すので、CPUを選択してください。CPU実行はfloat32です。GPU実行は対応する精度を自動で選びます（CUDA・XPUはbfloat16、非対応ならfloat16）。CLIでは起動時の指定として<code>--device cuda</code>、<code>--device xpu</code>、<code>--device mps</code>、<code>--device npu</code>、<code>--device cpu</code>も使えます。</p>
+<p>選んだGPU・NPUで実際に動かない場合（モデルの一部がCPUに残った、推論がCPUで実行された、OpenVINOがNPU以外で実行しようとした）はエラーとして停止し、CPUへ自動で切り替えて成功扱いにはしません。</p>
+<p>XPU版・NPU版は別の仮想環境（<code>.venv-xpu</code>）や追加の変換手順が必要です。<a href="#6-intel-gpuxpu版">6章</a>・<a href="#7-intel-npu版">7章</a>を参照してください。</p>
 <ol>
 <li>「領域選択」を押し、主画面で監視したい範囲をドラッグします。</li>
 <li>小窓を選択した範囲の外へ移動します。</li>
@@ -37,7 +39,7 @@ python3 -m venv .venv
 <li>モデルの読込後、選択領域の取得と推論が繰り返されます。「停止」で新たな取得を止めます。</li>
 </ol>
 <p>小窓が選択範囲に重なると画面取得を一時停止します。画面構成を変えた場合は領域を選び直してください。</p>
-<h2>4. 3つのモード</h2>
+<h2 id="4-3つのモード">4. 3つのモード</h2>
 <p>「全体」は選択した画面領域の画像全体を指します。</p>
 <table>
 <thead>
@@ -61,16 +63,69 @@ python3 -m venv .venv
 </tr>
 </tbody>
 </table>
-<p>指示・しきい値・候補・実行デバイスは停止中に変更します。更新間隔は0.5 / 1.0 / 2.0 / 5.0 / 10.0秒から選べます。これは次の取得を始める最短間隔であり、推論が遅い場合に画像をためません。CPUで1フレームに約5秒かかる場合、0.5秒を選んでも結果は0.5秒ごとになりません。取得頻度を抑えたい場合は10.0秒を選びます。「推論」は画像の縮小からモデル応答まで、「処理合計」は画面取得開始から表示までの時間です。</p>
-<h2>5. 動作確認</h2>
+<p>指示・しきい値・候補・実行デバイスは停止中に変更します。更新間隔は0.5 / 1.0 / 2.0 / 5.0 / 10.0秒から選べます。これは次の取得を始める最短間隔であり、推論が遅い場合に画像をためません。CPUで1フレームに約10秒かかる場合（Core Ultra 5 236V・メモリ16 GBでの実測は8〜17秒）、0.5秒を選んでも結果は0.5秒ごとになりません。取得頻度を抑えたい場合は10.0秒を選びます。「推論」は画像の縮小からモデル応答まで、「処理合計」は画面取得開始から表示までの時間です。</p>
+<h2 id="5-動作確認">5. 動作確認</h2>
 <pre><code class="language-powershell">.\.venv\Scripts\python.exe -m unittest discover -s tests -p &quot;test_*.py&quot; -q
 .\.venv\Scripts\python.exe -m tests.real_modes_smoke path\to\cats.jpg
 .\.venv\Scripts\python.exe -m tests.gui_modes_smoke
 </code></pre>
 <p>静止画を個別に試す場合は<code>tools/check_model.py</code>を使います。GPU／CPUや環境の状態は<code>tools/diagnose.py</code>で確認できます。実モデルの確認には手元の画像を指定してください。画像ファイルはリポジトリに含まれません。</p>
-<h2>参考資料</h2>
+<p>処理時間・メモリ・GPU/NPU使用率・ページングをまとめて測る場合は<code>tools/benchmark.py</code>を使います（Windows）。実モデルでGUIの停止・再開・デバイス切り替えを確かめる場合は<code>tests/real_gui_device_switch.py</code>を使います。</p>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe tools\benchmark.py path\to\cats.jpg --device cpu --runs 3 --output docs\benchmarks\cpu.json
+.\.venv-xpu\Scripts\python.exe -m tests.real_gui_device_switch path\to\cats.jpg --accelerator GPU
+</code></pre>
+<p><code>diagnose.py</code>の出力にはモデルの保存先（ユーザー名を含むパス）が出ます。公開リポジトリへ貼る場合は削ってください。<code>benchmark.py</code>の出力にはパス・ユーザー名・画像内容を含めません。</p>
+<h2 id="6-intel-gpuxpu版">6. Intel GPU（XPU）版</h2>
+<p>Intel Core Ultra（例：Core Ultra 200V）の内蔵Arc GPUで、PyTorchのXPUバックエンドを使います。CPU版の<code>.venv</code>とは別の仮想環境にします。</p>
+<ol>
+<li>Intel GPUドライバーを最新にします（<a href="https://www.intel.com/content/www/us/en/download/785597/intel-arc-iris-xe-graphics-windows.html">Intel Arc &amp; Iris Xe Graphics Driver</a>、またはIntel Driver &amp; Support Assistant）。</li>
+<li><a href="https://docs.pytorch.org/docs/2.15/notes/get_start_xpu.html">PyTorch XPU版</a>を別の仮想環境に入れます。</li>
+</ol>
+<pre><code class="language-powershell">python -m venv .venv-xpu
+.\.venv-xpu\Scripts\python.exe -m pip install --upgrade pip
+.\.venv-xpu\Scripts\python.exe -m pip install torch torchvision --index-url https://download.pytorch.org/whl/xpu
+.\.venv-xpu\Scripts\python.exe -m pip install -r requirements-xpu.txt
+.\.venv-xpu\Scripts\python.exe -c &quot;import torch; print(torch.xpu.is_available(), torch.xpu.get_device_name(0))&quot;
+.\.venv-xpu\Scripts\python.exe tools\diagnose.py
+</code></pre>
+<p><code>True</code>とGPU名（例：<code>Intel(R) Arc(TM) 130V GPU (8GB)</code>）が表示され、診断結果で<code>accelerators.xpu</code>が<code>true</code>、<code>selected_gpu</code>が<code>xpu</code>になれば準備完了です。XPU版のwheelは依存ランタイム（oneAPI）を含むため約4 GBあり、取得に時間がかかります。<code>requirements-xpu.txt</code>は<code>accelerate</code>を追加し、重みをCPUへ全量展開せずXPUへ直接読み込みます（内蔵GPUはシステムメモリを共有するため、二重に持つとメモリ不足になります）。</p>
+<ol>
+<li>起動は<code>.\.venv-xpu\Scripts\python.exe app.py</code>（または<code>--device xpu</code>を付ける）です。「実行」のGPUがXPUを指します。モデルはこのフォルダーの<code>models/d1-2B</code>を共有するので、再取得は不要です。</li>
+</ol>
+<p>初回の推論はGPUカーネルのコンパイルで10秒前後かかります。2回目以降は1フレーム0.3〜0.7秒程度です（計測値は<a href="INTEL_XPU_NPU_REPORT_JA.md">検証結果</a>）。</p>
+<p>メモリ16 GB機では、XPU版の推論中にプロセスが約8.5 GB（うちGPU共有約5 GB）を使います。他のアプリで多くのメモリを使っているとページングが起きるため、ブラウザーなどを閉じて使ってください。</p>
+<h2 id="7-intel-npu版">7. Intel NPU版</h2>
+<p>Intel Core Ultra のNPU（Intel AI Boost）で、OpenVINOを使って推論する別バックエンドです。d1-2Bの画像エンコーダーと言語モデルをOpenVINO形式に変換し、NPU向けにコンパイルして使います。トークン化や回答の読み取りはd1自身のコードをそのまま使うので、3モードの出力はCPU・GPU版と同じ形式です。</p>
+<ol>
+<li>Intel NPUドライバーを最新にします（<a href="https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html">Intel NPU Driver - Windows</a>）。デバイスマネージャーに「Intel(R) AI Boost」が表示されることを確認します。</li>
+<li>CPU版の<code>.venv</code>に<a href="https://docs.openvino.ai/2026/openvino-workflow/running-inference/inference-devices-and-modes/npu-device.html">OpenVINO</a>を追加し、<code>NPU</code>が見えることを確認します。</li>
+</ol>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe -m pip install -r requirements-npu.txt
+.\.venv\Scripts\python.exe -c &quot;import openvino as ov; c=ov.Core(); print(c.available_devices, c.get_property('NPU','FULL_DEVICE_NAME'))&quot;
+</code></pre>
+<p><code>['CPU', 'GPU', 'NPU'] Intel(R) AI Boost</code>のように表示されれば準備完了です。</p>
+<ol>
+<li>モデルをNPU用に変換します。初回のみ必要で、<code>models/d1-2B-npu/</code>（約3.7 GB）に保存されます。</li>
+</ol>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe tools\export_npu.py
+</code></pre>
+<p>変換は「PyTorchでの基準計算 → OpenVINO形式へ変換 → OpenVINO CPUで基準と照合 → NPUコンパイル」の順に進み、各段階の時間とメモリを表示します。変換中は一時的に約17 GBのメモリ（ページファイル込み）を使い、16 GB機で約7分かかります。NPUコンパイルの結果は<code>.ov_cache/</code>に保存され、2回目以降のアプリ起動ではモデル読込が約15秒になります。d1-2Bを取得し直した場合（revisionが変わった場合）は再変換が必要です。</p>
+<ol>
+<li>アプリの「実行」で<strong>NPU</strong>を選ぶか、<code>--device npu</code>で起動します。読込後、領域表示の右に「実行先 npu・fp16」と表示されます。</li>
+</ol>
+<p>NPU版の制約：</p>
+<ul>
+<li>NPUは固定形状が必要なため、画像を640×480に変形して入力します。BBoxは画像に対する比率なので、表示位置は正しく戻ります。</li>
+<li>指示・分類候補を含めた入力の長さに上限（640トークン）があります。通常の指示や、短い候補15件までは収まります。超えた場合はエラーを表示して停止します。長い候補を使う場合は<code>tools\export_npu.py --seq-len 1024</code>で変換し直します（推論は遅くなります）。</li>
+<li>NPUで実行できない場合（ドライバー・変換モデルがない、OpenVINOがNPU以外で実行しようとした）は、理由を表示して停止します。CPUへ自動で切り替えません。</li>
+</ul>
+<p>変換で対処した問題（NPUが扱えない演算と、その置き換え）と計測結果は<a href="INTEL_XPU_NPU_REPORT_JA.md">検証結果</a>にあります。</p>
+<h2 id="参考資料">参考資料</h2>
 <ul>
 <li><a href="https://huggingface.co/LiquidAI/d1-2B">Liquid AI d1-2B モデルカード</a></li>
 <li><a href="https://pytorch.org/get-started/locally/">PyTorch インストール手順</a></li>
+<li><a href="https://docs.pytorch.org/docs/2.15/notes/get_start_xpu.html">PyTorch Intel GPU（XPU）導入手順</a></li>
+<li><a href="https://docs.openvino.ai/2026/openvino-workflow/running-inference/inference-devices-and-modes/npu-device.html">OpenVINO NPU デバイス</a></li>
+<li><a href="https://docs.openvino.ai/2026/openvino-workflow/model-preparation/convert-model-pytorch.html">OpenVINO PyTorchモデルの変換</a></li>
 <li><a href="https://pillow.readthedocs.io/en/stable/reference/ImageGrab.html">Pillow ImageGrab</a></li>
 </ul></body></html>

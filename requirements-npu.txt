@@ -1,0 +1,5 @@
+-r requirements-model.txt
+# NPU backend (Intel Core Ultra NPU / "Intel AI Boost"). Install into the CPU .venv,
+# which also provides the CPU torch build used to convert the model (tools/export_npu.py).
+# Verified with 2026.4.1 on 2026-11-12.
+openvino>=2026.4,<2027

@@ -9,7 +9,8 @@ import sys
 import time
 import tkinter as tk
 from tkinter import font as tkfont, ttk
-from .backend import DEFAULT_MODEL_DIR, D1Backend
+from .backend import DEFAULT_MODEL_DIR, create_backend, detect_gpu_device
+from .npu_backend import npu_problem
 from .capture import check_capture_session, enable_dpi_awareness, grab
 from .core import (DEFAULT_PROMPT, MODE_REGION, MODE_BINARY, MODE_CHOICE, MODES,
                    INTERVAL_CHOICES, InferenceSettings, Region, SingleFlight,
@@ -25,11 +26,11 @@ def available_gpu_device() -> str | None:
         import torch
     except ImportError:
         return None
-    if torch.cuda.is_available():
-        return "cuda"
-    if torch.backends.mps.is_available():
-        return "mps"
-    return None
+    return detect_gpu_device(torch)
+
+
+def device_label(device: str) -> str:
+    return {"cpu": "CPU", "npu": "NPU"}.get(device, "GPU")
 
 
 class DetectorApp:
@@ -52,7 +53,7 @@ class DetectorApp:
         self.tick_id: str | None = None
         self.gpu_device = available_gpu_device()
         self.initial_device = args.device if args.device != "auto" else (self.gpu_device or "cpu")
-        self.backend = backend or D1Backend(args.model_dir, self.initial_device, args.dtype, args.compile)
+        self.backend = backend or create_backend(self.initial_device, args.model_dir, args.dtype, args.compile)
         self.worker = InferenceWorker(self.backend)
         root.title("Visual Detector — Liquid AI d1-2B")
         root.configure(bg=BG)
@@ -88,8 +89,8 @@ class DetectorApp:
         header = ttk.Frame(self.body)
         header.pack(fill="x", pady=(0, 5))
         ttk.Label(header, text="VISUAL DETECTOR", font=(tkfont.nametofont("TkDefaultFont").actual("family"), 11, "bold")).pack(side="left")
-        self.device_choice = tk.StringVar(value="CPU" if self.initial_device == "cpu" else "GPU")
-        self.device_combo = ttk.Combobox(header, values=("GPU", "CPU"), textvariable=self.device_choice,
+        self.device_choice = tk.StringVar(value=device_label(self.initial_device))
+        self.device_combo = ttk.Combobox(header, values=("GPU", "NPU", "CPU"), textvariable=self.device_choice,
                                          state="readonly", width=5)
         self.device_combo.pack(side="right")
         self.device_combo.bind("<<ComboboxSelected>>", self._device_changed)
@@ -162,8 +163,13 @@ class DetectorApp:
                                            state="readonly", width=4)
         self.interval_combo.pack(side="left")
         ttk.Label(toolbar, text="秒").pack(side="left", padx=(3, 0))
-        self.region_text = tk.StringVar(value="領域：未選択（主画面の固定座標）")
-        ttk.Label(self.body, textvariable=self.region_text, foreground=MUTED).pack(fill="x", pady=(5, 4))
+        self.region_text = tk.StringVar(value="領域：未選択")
+        info_row = ttk.Frame(self.body)
+        info_row.pack(fill="x", pady=(5, 4))
+        ttk.Label(info_row, textvariable=self.region_text, foreground=MUTED).pack(side="left")
+        # The device that really runs the model (set from the loaded backend, not from the menu).
+        self.backend_text = tk.StringVar(value="実行先 未読込")
+        ttk.Label(info_row, textvariable=self.backend_text, foreground=MUTED).pack(side="right")
         self.canvas = PreviewCanvas(self.body)
         self.canvas.pack(fill="both", expand=True)
         self.status = tk.StringVar(value="領域を選び、開始してください。")
@@ -180,20 +186,38 @@ class DetectorApp:
         self.category_summary.set(f"分類候補：{preview} / 該当しない")
 
     def _device_changed(self, event=None) -> None:
+        current = getattr(self.backend, "requested_device", self.args.device)
         if self.gate.running or self.gate.busy or self.loading or self.selecting:
-            self.device_choice.set("CPU" if getattr(self.backend, "requested_device", self.args.device) == "cpu" else "GPU")
+            self.device_choice.set(device_label(current))
             return
-        if self.device_choice.get() == "GPU":
+        choice = self.device_choice.get()
+        if choice == "GPU":
             if self.gpu_device is None:
-                self.device_choice.set("CPU")
+                self.device_choice.set(device_label(current))
                 self._set_status("利用できるGPUがありません。CPUを選択してください。", True)
                 return
             selected = self.gpu_device
+        elif choice == "NPU":
+            problem = npu_problem()
+            if problem:
+                self.device_choice.set(device_label(current))
+                self._set_status(problem, True)
+                return
+            selected = "npu"
         else:
             selected = "cpu"
+        if (selected == "npu") != (current == "npu"):
+            # NPU is a separate (OpenVINO) backend: swap it, releasing the old model first.
+            old = self.backend
+            for name in ("model", "compiled", "request"):
+                if hasattr(old, name):
+                    setattr(old, name, None)
+            self.backend = create_backend(selected, self.args.model_dir, "auto", self.args.compile)
+            self.worker.backend = self.backend
         self.backend.requested_device = selected
         self.backend.requested_dtype = "auto"
         self.ready = False
+        self.backend_text.set(f"実行先 {selected}（未読込）")
         self._set_status(f"{self.device_choice.get()}を選択しました。次の開始時にモデルを読み込みます。")
         self._controls()
 
@@ -377,7 +401,8 @@ class DetectorApp:
         if kind == "loaded":
             self.ready = True
             self.loading = False
-            self._set_status("" if self.gate.running else "モデル読込済み・停止中。")
+            self.backend_text.set(f"実行先 {getattr(self.backend, 'short_description', self.backend.device)}")
+            self._set_status(f"読込完了：{data}" if self.gate.running else f"モデル読込済み・停止中：{data}")
         elif kind == "error":
             task_kind, generation, text = data
             self.loading = False
@@ -476,7 +501,7 @@ class DetectorApp:
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="指定領域をローカルd1-2Bで検出・判定・分類する小窓")
     p.add_argument("--model-dir", type=Path, default=DEFAULT_MODEL_DIR)
-    p.add_argument("--device", choices=("auto", "cuda", "mps", "cpu"), default="auto")
+    p.add_argument("--device", choices=("auto", "cuda", "xpu", "mps", "npu", "cpu"), default="auto")
     p.add_argument("--dtype", choices=("auto", "float32", "float16", "bfloat16"), default="auto")
     p.add_argument("--compile", action="store_true", help="model.compile()を使用。初回遅延が増えるため初期検証では非推奨")
     p.add_argument("--prompt", default=DEFAULT_PROMPT)

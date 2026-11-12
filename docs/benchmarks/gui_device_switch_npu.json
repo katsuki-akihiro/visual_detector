@@ -1,0 +1,41 @@
+﻿{
+  "backend": "d1-2B / npu (Intel(R) AI Boost) / OpenVINO 2026.4.1 / fp16 / 652f920e",
+  "steps": [
+    {
+      "step": "run",
+      "device": "npu",
+      "frames": 3,
+      "detections": 2,
+      "last_inference_ms": 769,
+      "wall_s": 22.3,
+      "label": "実行先 npu・fp16"
+    },
+    {
+      "step": "resume",
+      "device": "npu",
+      "frames": 3,
+      "detections": 2,
+      "last_inference_ms": 727,
+      "wall_s": 2.4,
+      "label": "実行先 npu・fp16"
+    },
+    {
+      "step": "switch_to_cpu",
+      "device": "cpu",
+      "frames": 1,
+      "detections": 2,
+      "last_inference_ms": 26944,
+      "wall_s": 34.0,
+      "label": "実行先 cpu・float32"
+    },
+    {
+      "step": "switch_back",
+      "device": "npu",
+      "frames": 3,
+      "detections": 2,
+      "last_inference_ms": 792,
+      "wall_s": 20.9,
+      "label": "実行先 npu・fp16"
+    }
+  ]
+}

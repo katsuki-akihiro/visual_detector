@@ -1,0 +1,218 @@
+{
+  "host": {
+    "cpu": "Intel(R) Core(TM) Ultra 5 236V",
+    "gpus": [
+      {
+        "Name": "Intel(R) Arc(TM) 130V GPU (8GB)",
+        "DriverVersion": "32.0.101.8860"
+      }
+    ],
+    "npu_driver": "32.0.100.4724",
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.7",
+    "ram_gb": 15.6
+  },
+  "packages": {
+    "torch": "2.15.0",
+    "torchvision": "0.29.2",
+    "transformers": "5.22.2",
+    "openvino": "2026.4.1"
+  },
+  "device_requested": "npu",
+  "image_size": [
+    640,
+    480
+  ],
+  "max_edge": 768,
+  "status": "ok",
+  "backend": "d1-2B / npu (Intel(R) AI Boost) / OpenVINO 2026.4.1 / fp16 / 652f920e",
+  "actual_device": "npu",
+  "load": {
+    "ms": 14770,
+    "system_available_before_mb": 7203,
+    "working_set_mb": 1797,
+    "peak_working_set_mb": 6247,
+    "private_mb": 2028,
+    "peak_commit_mb": 7482,
+    "page_faults": 3163065,
+    "counters": {
+      "samples": 14,
+      "engine_util_percent": {},
+      "max_working_set_mb": 4384,
+      "max_private_mb": 6220,
+      "max_gpu_shared_mb": 67,
+      "max_gpu_dedicated_mb": 0,
+      "min_system_available_mb": 2441,
+      "pages_input_per_s_max": 270992.7,
+      "pages_input_total_est": 1017495,
+      "pages_output_total_est": 3514,
+      "pagefile_percent_max": 16.1
+    }
+  },
+  "modes": {
+    "region": {
+      "ms": [
+        3254,
+        681,
+        711
+      ],
+      "results": [
+        {
+          "boxes": [
+            [
+              0.018,
+              0.113,
+              0.497,
+              0.987,
+              0.996
+            ],
+            [
+              0.538,
+              0.052,
+              0.999,
+              0.778,
+              0.996
+            ]
+          ]
+        }
+      ],
+      "first_ms": 3254,
+      "warm_median_ms": 696,
+      "counters": {
+        "samples": 5,
+        "engine_util_percent": {
+          "Compute@1325D": {
+            "mean": 32.9,
+            "max": 115.2
+          }
+        },
+        "max_working_set_mb": 5708,
+        "max_private_mb": 2145,
+        "max_gpu_shared_mb": 3958,
+        "max_gpu_dedicated_mb": 0,
+        "min_system_available_mb": 1043,
+        "pages_input_per_s_max": 509711.2,
+        "pages_input_total_est": 949740,
+        "pages_output_total_est": 6577,
+        "pagefile_percent_max": 16.2
+      }
+    },
+    "binary": {
+      "ms": [
+        1352,
+        1370,
+        1406
+      ],
+      "results": [
+        {
+          "score": 0.9925,
+          "positive": true,
+          "boxes": [
+            [
+              0.018,
+              0.113,
+              0.497,
+              0.987,
+              0.996
+            ],
+            [
+              0.538,
+              0.052,
+              0.999,
+              0.778,
+              0.996
+            ]
+          ]
+        }
+      ],
+      "first_ms": 1352,
+      "warm_median_ms": 1388,
+      "counters": {
+        "samples": 5,
+        "engine_util_percent": {
+          "Compute@1325D": {
+            "mean": 96.3,
+            "max": 124.1
+          }
+        },
+        "max_working_set_mb": 5606,
+        "max_private_mb": 1908,
+        "max_gpu_shared_mb": 3958,
+        "max_gpu_dedicated_mb": 0,
+        "min_system_available_mb": 1214,
+        "pages_input_per_s_max": 876.2,
+        "pages_input_total_est": 1689,
+        "pages_output_total_est": 119227,
+        "pagefile_percent_max": 19.3
+      }
+    },
+    "choice": {
+      "ms": [
+        658,
+        629,
+        616
+      ],
+      "results": [
+        {
+          "choice": "猫がいる",
+          "score": 0.9807,
+          "probabilities": {
+            "魚がある": 0.0008,
+            "猫がいる": 0.9807,
+            "該当しない": 0.0185
+          }
+        }
+      ],
+      "first_ms": 658,
+      "warm_median_ms": 622,
+      "counters": {
+        "samples": 2,
+        "engine_util_percent": {
+          "Compute@1325D": {
+            "mean": 92.7,
+            "max": 124.1
+          }
+        },
+        "max_working_set_mb": 5539,
+        "max_private_mb": 1841,
+        "max_gpu_shared_mb": 3958,
+        "max_gpu_dedicated_mb": 0,
+        "min_system_available_mb": 1683,
+        "pages_input_per_s_max": 262.2,
+        "pages_input_total_est": 330,
+        "pages_output_total_est": 0,
+        "pagefile_percent_max": 19.3
+      }
+    }
+  },
+  "inference": {
+    "total_s": 10.7,
+    "frames": 9,
+    "process_page_faults": 1227343,
+    "counters": {
+      "samples": 10,
+      "engine_util_percent": {
+        "Compute@1325D": {
+          "mean": 59.2,
+          "max": 124.1
+        }
+      },
+      "max_working_set_mb": 5708,
+      "max_private_mb": 2145,
+      "max_gpu_shared_mb": 3958,
+      "max_gpu_dedicated_mb": 0,
+      "min_system_available_mb": 1043,
+      "pages_input_per_s_max": 509711.2,
+      "pages_input_total_est": 951239,
+      "pages_output_total_est": 125804,
+      "pagefile_percent_max": 19.3
+    }
+  },
+  "process_peak": {
+    "working_set_mb": 5536,
+    "peak_working_set_mb": 6247,
+    "private_mb": 1838,
+    "peak_commit_mb": 7482,
+    "page_faults": 4390408
+  }
+}

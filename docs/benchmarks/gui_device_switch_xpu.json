@@ -1,0 +1,41 @@
+﻿{
+  "backend": "d1-2B / xpu (Intel(R) Arc(TM) 130V GPU (8GB)) / bfloat16 / 652f920e",
+  "steps": [
+    {
+      "step": "run",
+      "device": "xpu",
+      "frames": 3,
+      "detections": 2,
+      "last_inference_ms": 356,
+      "wall_s": 16.4,
+      "label": "実行先 xpu・bfloat16"
+    },
+    {
+      "step": "resume",
+      "device": "xpu",
+      "frames": 3,
+      "detections": 2,
+      "last_inference_ms": 350,
+      "wall_s": 1.5,
+      "label": "実行先 xpu・bfloat16"
+    },
+    {
+      "step": "switch_to_cpu",
+      "device": "cpu",
+      "frames": 1,
+      "detections": 2,
+      "last_inference_ms": 20222,
+      "wall_s": 34.7,
+      "label": "実行先 cpu・float32"
+    },
+    {
+      "step": "switch_back",
+      "device": "xpu",
+      "frames": 3,
+      "detections": 2,
+      "last_inference_ms": 364,
+      "wall_s": 19.4,
+      "label": "実行先 xpu・bfloat16"
+    }
+  ]
+}

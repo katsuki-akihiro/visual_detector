@@ -20,7 +20,7 @@ def main() -> int:
     p.add_argument("image", type=Path)
     p.add_argument("--model-dir", type=Path, default=DEFAULT_MODEL_DIR)
     p.add_argument("--prompt", default=DEFAULT_PROMPT)
-    p.add_argument("--device", choices=("auto", "cuda", "mps", "cpu"), default="auto")
+    p.add_argument("--device", choices=("auto", "cuda", "xpu", "mps", "cpu"), default="auto")
     p.add_argument("--dtype", choices=("auto", "float32", "float16", "bfloat16"), default="auto")
     p.add_argument("--max-boxes", type=int, default=8)
     p.add_argument("--max-edge", type=int, default=768)

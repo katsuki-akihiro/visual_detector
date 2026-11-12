@@ -1,0 +1,115 @@
+{
+  "seq_len": 640,
+  "fixed_size": [
+    640,
+    480
+  ],
+  "weights": "fp16",
+  "steps": [
+    {
+      "step": "load_pytorch_bf16",
+      "s": 8.9,
+      "peak_commit_mb": 5322
+    },
+    {
+      "step": "record_backbone_call",
+      "s": 8.1,
+      "peak_commit_mb": 5533
+    },
+    {
+      "step": "pytorch_reference",
+      "s": 15.2,
+      "peak_commit_mb": 5533
+    },
+    {
+      "step": "convert_model",
+      "s": 53.5,
+      "peak_commit_mb": 5740
+    },
+    {
+      "step": "save_ir",
+      "s": 16.3,
+      "peak_commit_mb": 5757
+    },
+    {
+      "step": "check_on_openvino_cpu",
+      "s": 29.8,
+      "peak_commit_mb": 9344
+    },
+    {
+      "step": "compile_npu",
+      "s": 3.0,
+      "peak_commit_mb": 9344,
+      "error": "RuntimeError: Exception from src\\inference\\src\\cpp\\core.cpp:135:\nException from src\\inference\\src\\dev\\plugin.cpp:54:\nException from src\\plugins\\intel_npu\\src\\plugin\\src\\plugin.cpp:560:\nException from src\\plugins\\intel_npu\\src\\compiler_adapter\\src\\compiler_impl.cpp:323:\nCompilation failed. vclAllocatedExecutableCreate4 result: 0x78000004 - [NPU_VCL] Compiler returned msg:\nFailed to create a valid MLIR module for the IR model\n\n\n\n",
+      "where": [
+        "export_npu.py:160 main",
+        "_ov_api.py:646 compile_model"
+      ]
+    }
+  ],
+  "openvino": "2026.4.1-22982-e213a147257-releases/2026/4",
+  "torch": "2.15.0+cpu",
+  "image_grid_thw": [
+    [
+      1,
+      30,
+      40
+    ]
+  ],
+  "recorded_tokens": 567,
+  "padding_max_abs_diff": 2.75,
+  "ops": [
+    "Add",
+    "BitwiseAnd",
+    "BitwiseOr",
+    "Broadcast",
+    "Concat",
+    "Constant",
+    "Convert",
+    "Cos",
+    "Divide",
+    "Equal",
+    "Floor",
+    "Gather",
+    "Gelu",
+    "Greater",
+    "GroupConvolution",
+    "Less",
+    "MVN",
+    "MatMul",
+    "Mod",
+    "Multiply",
+    "NonZero",
+    "Pad",
+    "Parameter",
+    "Power",
+    "Range",
+    "ReduceMean",
+    "Reshape",
+    "Result",
+    "ScaledDotProductAttention",
+    "ScatterNDUpdate",
+    "ShapeOf",
+    "Sigmoid",
+    "Sin",
+    "Slice",
+    "Split",
+    "Sqrt",
+    "Squeeze",
+    "StridedSlice",
+    "Subtract",
+    "Swish",
+    "Tile",
+    "Transpose",
+    "Unsqueeze",
+    "VariadicSplit"
+  ],
+  "ir_mb": 3662,
+  "cpu_vs_pytorch": {
+    "max_abs": 36.939453125,
+    "mean_abs": 0.9608684778213501,
+    "ref_mean_abs": 1.4939677715301514
+  },
+  "status": "failed",
+  "error": "RuntimeError: Exception from src\\inference\\src\\cpp\\core.cpp:135:\nException from src\\inference\\src\\dev\\plugin.cpp:54:\nException from src\\plugins\\intel_npu\\src\\plugin\\src\\plugin.cpp:560:\nException from src\\plugins\\intel_npu\\src\\compiler_adapter\\src\\compiler_impl.cpp:323:\nCompilation failed. vclAllocatedExecutableCreate4 result: 0x78000004 - [NPU_VCL] Compiler returned msg:\nFailed to create a valid MLIR module for the IR model\n\n\n\n"
+}

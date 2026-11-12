@@ -1,0 +1,4 @@
+-r requirements-model.txt
+# Install torch + torchvision from the PyTorch XPU index first (see docs/BUILD_GUIDE_JA.md).
+# accelerate lets transformers load the weights straight onto the XPU (device_map).
+accelerate>=1.10

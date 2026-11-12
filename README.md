@@ -16,11 +16,13 @@ python -m venv .venv
 
 GPUを使う場合は、その環境に合ったCUDA版PyTorchの導入コマンドを先に確認してください。モデル取得前に[Liquid AIのモデルライセンスと独自コード](https://huggingface.co/LiquidAI/d1-2B)を確認してください。macOS/Linuxの手順と詳しい操作は[構築・操作手順書](docs/BUILD_GUIDE_JA.html)にあります。
 
-1. 小窓右上の「実行」でGPUまたはCPUを選びます。
+Intel Core Ultra（内蔵Arc GPU・NPU）では、XPU版PyTorchを入れた別の仮想環境でGPUを、OpenVINOでNPUを使えます。手順は構築・操作手順書の6章・7章、計測結果は[Intel XPU・NPU 検証結果](docs/INTEL_XPU_NPU_REPORT_JA.md)にあります。
+
+1. 小窓右上の「実行」でGPU・NPU・CPUを選びます。
 2. 「領域選択」で主画面の監視範囲をドラッグし、小窓をその範囲の外へ移動します。
 3. モードと指示を設定して「開始」を押します。停止中にGPU／CPUを変更すると、次の開始時にモデルを読み直します。
 
-GPUが利用できない環境ではCPUを選択します。CPUとApple Silicon MPSはfloat32、CUDAは対応状況に応じてbfloat16またはfloat16を使います。コマンドからは`--device cuda`、`--device mps`、`--device cpu`も指定できます。
+GPUが利用できない環境ではCPUを選択します。CPUとApple Silicon MPSはfloat32、CUDAとIntel XPUは対応状況に応じてbfloat16またはfloat16、NPUはfp16を使います。コマンドからは`--device cuda`、`--device xpu`、`--device mps`、`--device npu`、`--device cpu`も指定できます。読込後は領域表示の右に実際の実行先（例：「実行先 xpu・bfloat16」）を表示し、選んだGPU・NPUで動かない場合はCPUに自動で切り替えずにエラーにします。
 
 ## モード
 
@@ -43,7 +45,8 @@ GPUが利用できない環境ではCPUを選択します。CPUとApple Silicon 
 | ファイル | 役割 |
 |---|---|
 | `desktop_detector/core.py` | 推論設定、応答の検証、座標計算、取得間隔の制御 |
-| `desktop_detector/backend.py` | ローカルモデルの読込と3モードの推論 |
+| `desktop_detector/backend.py` | ローカルモデルの読込と3モードの推論（CPU・CUDA・XPU・MPS） |
+| `desktop_detector/npu_backend.py` | OpenVINOでNPUに載せた画像エンコーダー＋言語モデルによる3モードの推論 |
 | `desktop_detector/worker.py` | 推論専用スレッドとフレーム処理 |
 | `desktop_detector/capture.py` | 主画面の画像取得 |
 | `desktop_detector/selection.py` | 監視領域の選択画面 |
@@ -60,6 +63,6 @@ GPUが利用できない環境ではCPUを選択します。CPUとApple Silicon 
 .\.venv\Scripts\python.exe -m tests.real_modes_smoke path\to\cats.jpg
 ```
 
-単体テストとGUI統合テストのほか、手元の猫画像を渡して実モデルの応答を確認できます。サンプル画像は同梱していません。Windows環境でCUDA・CPU推論とGPUからCPUへの切り替えを確認済みです。魚の検出精度と長時間運転は未測定です。
+単体テストとGUI統合テストのほか、手元の猫画像を渡して実モデルの応答を確認できます。サンプル画像は同梱していません。Windows環境でCUDA・CPU推論とGPUからCPUへの切り替えを確認済みです。Intel Core Ultra 5 236V（メモリ16 GB）でXPU・NPU推論と、XPU／NPUとCPUの切り替えを確認しました（[検証結果](docs/INTEL_XPU_NPU_REPORT_JA.md)）。魚の検出精度と長時間運転は未測定です。
 
 モデルの仕様：[Liquid AI d1-2B](https://huggingface.co/LiquidAI/d1-2B)。

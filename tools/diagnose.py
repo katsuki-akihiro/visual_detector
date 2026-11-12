@@ -25,11 +25,19 @@ except ImportError as exc:
     info["tk"] = str(exc)
 try:
     import torch
-    info["accelerators"] = {"cuda": torch.cuda.is_available(), "mps": torch.backends.mps.is_available(),
-                            "torch_cuda": torch.version.cuda}
+    from desktop_detector.backend import detect_gpu_device, xpu_available
+    info["accelerators"] = {"cuda": torch.cuda.is_available(), "xpu": xpu_available(torch),
+                            "mps": torch.backends.mps.is_available(),
+                            "torch_cuda": torch.version.cuda, "torch_xpu": getattr(torch.version, "xpu", None),
+                            "selected_gpu": detect_gpu_device(torch)}
     if torch.cuda.is_available():
         info["accelerators"]["gpu"] = torch.cuda.get_device_name(0)
         info["accelerators"]["vram_gb"] = round(torch.cuda.get_device_properties(0).total_memory / 2**30, 2)
+    elif xpu_available(torch):
+        props = torch.xpu.get_device_properties(0)
+        info["accelerators"]["gpu"] = torch.xpu.get_device_name(0)
+        info["accelerators"]["gpu_memory_gb"] = round(props.total_memory / 2**30, 2)
+        info["accelerators"]["xpu_bf16"] = torch.xpu.is_bf16_supported()
 except Exception as exc:
     info["accelerators"] = str(exc)
 try:
